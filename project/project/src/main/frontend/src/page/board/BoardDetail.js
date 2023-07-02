@@ -5,10 +5,11 @@ import axios from "axios";
 
 const BoardDetail = () => {
 
-
+    const storedSession = JSON.parse(localStorage.getItem('session')) || {};
     const [session, setSession] = useState({});
 
-    const storedSession = JSON.parse(localStorage.getItem('session')) || {};
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editedComment, setEditedComment] = useState('');
 
     useEffect(() => {
         const storedSession = JSON.parse(localStorage.getItem('session')) || {};
@@ -46,6 +47,7 @@ const BoardDetail = () => {
     const [boardHits, setBoardHits] = useState('');
     const [boardContents, setBoardContents] = useState('');
     const [boardCreatedTIme, setBoardCreatedTime] = useState('');
+    const [comments, setComments] = useState([]);
     //
     function reqList() {
         navigate(`/board/paging?page=${page}`, { state: { page: page } });
@@ -63,20 +65,20 @@ const BoardDetail = () => {
     }
 
     const commentWrite = async() => {
-        const writer = document.getElementById("commentWriter").value;
+        const writerId = document.getElementById("commentWriterId").value;
+        const writerNickName = document.getElementById("commentNickName").value;
         const contents = document.getElementById("commentContents").value;
         const board_id = id;
         console.log(board_id);
-        console.log("작성자:", writer);
-        console.log("내용", contents);
 
         const response = await axios.post(`/comment/save`, {
-                commentWriter: writer,
+                commentWriterId: writerId,
+                commentNickName: writerNickName,
                 commentContents: contents,
-                boardId: id
+                boardId: id,
         });
             if (response.status === 200) {
-                console.log("성공", response)
+                window.location.reload();
 
         }else{
                 console.log("실패")
@@ -89,7 +91,7 @@ const BoardDetail = () => {
             try {
                 const response = await axios.get('/board/detail/' + id);
                 const { data } = response;
-
+                console.log(data);
                 if (response.status === 200) {
                     const board_title = data.board.boardTitle;
                     setBoardTitle(board_title);
@@ -105,6 +107,10 @@ const BoardDetail = () => {
 
                     const board_created = data.board.boardCreatedTime;
                     setBoardCreatedTime(board_created);
+
+                    const commentDTOList = data.commentList;
+                    setComments(commentDTOList);
+
                 } else {
                     alert('게시글 정보를 불러오는데 실패하였습니다');
                 }
@@ -117,6 +123,44 @@ const BoardDetail = () => {
             console.error('Error during fetch:', error);
         });
     }, []);
+
+
+    const deleteComment = async (commentId) => {
+        const confirmDelete = window.confirm('댓글을 정말 삭제하시겠습니까?');
+
+        if (confirmDelete) {
+            try {
+                await axios.delete(`/comment/delete/${commentId}`);
+                alert("성공적으로 삭제 되었습니다.")
+                window.location.reload();
+            } catch (error) {
+                console.error('Error deleting comment:', error);
+            }
+        }
+    }
+
+    const updateComment = (commentId) => {
+        setEditingCommentId(commentId);
+        const comment = comments.find((comment) => comment.id === commentId);
+        setEditedComment(comment.commentContents);
+    };
+    const saveEditedComment = async (commentId) => {
+        console.log("수정수정")
+        try {
+
+            const response = await axios.put(`/comment/update/${commentId}`, {
+                commentContents: editedComment,
+                commentWriterId: storedSession.loginId,
+                commentNickName: storedSession.loginNickName,
+                boardId: id,
+            });
+            alert("댓글이 성공적으로 수정되었습니다.");
+            window.location.reload();
+        } catch (error) {
+            console.error('Error updating comment:', error);
+        }
+    };
+
     return (
         <>
             {/* <!-- Navigation--> */}
@@ -168,9 +212,65 @@ const BoardDetail = () => {
 
 
             <div>
-                <input type="text" id ="commentWriter" placeholder="작성자" value={storedSession.loginNickName}/>
+                <input type="hidden" id ="commentNickName" value={storedSession.loginNickName}/>
+
+                <input type="hidden" id ="commentWriterId"  value={storedSession.loginId}/>
                 <input type="text" id= "commentContents" placeholder="내용" />
                 <button id="comment-write-btn" onClick={() => commentWrite()}>댓글작성</button>
+            </div>
+
+            <div id="commentList">
+                <table>
+                    <thead>
+                    <tr>
+                        <th>댓글번호</th>
+                        <th>댓글 작성자</th>
+                        <th>댓글작성자 아이디</th>
+                        <th>댓글 내용</th>
+                        <th>댓글 작성 시간</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {comments.map((comment) => (
+                        <tr key={comment.id}>
+                            <td>{comment.id}</td>
+                            <td>{comment.commentWriterId}</td>
+                            <td>{comment.commentNickName}</td>
+                            <td>
+                                {editingCommentId === comment.id ? (
+                                    <textarea
+                                        value={editedComment}
+                                        onChange={(e) => setEditedComment(e.target.value)}
+                                        style={{ width: "100%", height: "100px" }} // Adjust the size as per your requirements
+                                    />
+                                ) : (
+                                    comment.commentContents
+                                )}
+                            </td>
+                            <td>{comment.commentCreatedTime}</td>
+                            <td>
+                                {storedSession.loginId === comment.commentWriterId && (
+                                    <>
+                                        {editingCommentId === comment.id ? (
+                                            <button onClick={() => saveEditedComment(comment.id)}>
+                                                저장
+                                            </button>
+                                        ) : (
+                                            <button onClick={() => updateComment(comment.id)}>수정</button>
+                                        )}
+                                    </>
+                                )}
+                            </td>
+                            <td>
+                                {storedSession.loginId === comment.commentWriterId && (
+                                    <button onClick={() => deleteComment(comment.id)}>삭제</button>
+                                )}
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+
             </div>
         </>
     )
