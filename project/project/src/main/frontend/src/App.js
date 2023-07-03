@@ -17,7 +17,6 @@ import Update from "./page/member/Update";
 import MySong from "./page/member/MySong";
 import MyBoard from "./page/member/MyBoard";
 import MemberDelete from "./page/member/MemberDelete";
-
 function App() {
   return (
     <div>
@@ -46,7 +45,6 @@ function App() {
 
 
           <Route path="/song/board" element={<LeaderBoard/>}></Route>
-
         </Routes>
       </Router>
     </div>

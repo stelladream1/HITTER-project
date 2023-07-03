@@ -93,7 +93,7 @@ const LeaderBoard = () => {
             const { data } = response;
             console.log(data);
 
-            const updatedSongList = data.songList.map(song => {
+            const updatedSongList = data.songPageList.content.map(song => {
                 const matchingLike = data.likeList.find(like => like.songId === song.id);
 
                 return {
@@ -109,10 +109,11 @@ const LeaderBoard = () => {
             setLikeList(data.likeList);
             const { songPageList ,startPage, endPage } = data;
 
-            setSongList(songPageList.content);
             setSongPageList(songPageList);
             setStartPage(startPage);
             setEndPage(endPage);
+
+            navigate(`/song/board?page=${page}`);
 
         } catch (error) {
             // Handle errors
@@ -124,33 +125,50 @@ const LeaderBoard = () => {
 
     };
 
-    const handleGenreFilter = async (genre) => {
+    const handleGenreFilter = async (genre, currentPage = page) => {
         try {
+
             const response = await axios.get(`/song/leader_board/genre/${memberId}`, {
                 params: {
                     memberId: memberId,
-                    genre: genre
+                    page: currentPage,
+                    genre: genre,
                 }
             });
 
             const { data } = response;
-            console.log(data)
-            // Update songList state with filtered songs
-            const updatedSongList = data.songList.map(song => {
+            console.log(data);
+
+            const updatedSongList = data.songPageList.content.map(song => {
                 const matchingLike = data.likeList.find(like => like.songId === song.id);
 
                 return {
                     ...song,
                     isLiked: !!matchingLike,
                     likeId: matchingLike ? matchingLike.id : null,
+
                 };
             });
 
             setSongList(updatedSongList);
+
+            setLikeList(data.likeList);
+            const { songPageList ,startPage, endPage } = data;
+
+
+            console.log(songPageList.content);
+            setSongPageList(songPageList);
+            setStartPage(startPage);
+            setEndPage(endPage);
+
+
         } catch (error) {
+
             console.error('Error fetching data:', error);
+
             setError(true);
         }
+
     };
     useEffect(() => {
 
@@ -228,7 +246,6 @@ const LeaderBoard = () => {
                     </thead>
                     <tbody>
                     {songList
-                        .sort((a, b) => b.prediction - a.prediction)    //높은순 정렬
                         .map((song, index) => (
                             <tr key={song.id}>
                                 {/*<td><LikeButton memberId={song.memberId} songId={song.id} />  </td>*/}
@@ -240,7 +257,7 @@ const LeaderBoard = () => {
                                         isLiked={song.isLiked}
                                     />
                                 </td>
-                                <td>{index + 1}</td>
+                                <td>{(page - 1) * songPageList.size + index + 1}</td>
                                 {/*<td>{song.id}</td>*/}
                                 <td>
                                     <Link to={`/hit_ai_detail?id=` + song.id} >

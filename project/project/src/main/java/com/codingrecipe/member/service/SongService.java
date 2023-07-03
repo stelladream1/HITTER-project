@@ -61,7 +61,7 @@ public class SongService {
         // 한페이지당 3개씩 글을 보여주고 정렬 기준은 id 기준으로 내림차순 정렬
         // page 위치에 있는 값은 0부터 시작
         Page<SongEntity> songEntities =
-                songRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id")));
+                songRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "prediction")));
 
         // 목록: id, writer, title, hits, createdTime
         Page<SongDTO> songDTOS = songEntities.map(song -> new SongDTO(song.getId(), song.getMemberNickName(),song.getPrediction(), song.getSongTitle(), song.getGenre(), song.getSongLike(), song.getCreatedTime()));
@@ -70,6 +70,14 @@ public class SongService {
 
 
 
+    public Page<SongDTO> pagingByGenre(String genre, Pageable pageable) {
+        int page = pageable.getPageNumber() - 1;
+        int pageLimit = 10;
 
+        Page<SongEntity> songEntities = songRepository.findByGenre(genre, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "prediction")));
+        Page<SongDTO> songDTOS = songEntities.map(song -> new SongDTO(song.getId(), song.getMemberNickName(), song.getPrediction(), song.getSongTitle(), song.getGenre(), song.getSongLike(), song.getCreatedTime()));
+
+        return songDTOS;
+    }
 
 }
