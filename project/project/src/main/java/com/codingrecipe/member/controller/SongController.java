@@ -8,6 +8,9 @@ import com.codingrecipe.member.service.SongService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -50,19 +53,23 @@ public class SongController {
 //    }
 
     @GetMapping("/song/leader_board/{memberId}")
-    public ResponseEntity<Map<String, Object>> findByMemberId(@PathVariable Long memberId) {
+    public ResponseEntity<Map<String, Object>> findByMemberId(@PathVariable Long memberId,@PageableDefault(page = 1) Pageable pageable) {
         System.out.println("111111111111");
         List<SongDTO> songDTOList = songService.findAll();
         List<LikeDTO> likeDTOList = likeService.findByUserId(memberId);
 
-//        List<LikeDTO> likeDTOList = likeService.findAll();
-
         Map<String, Object> responseData = new HashMap<>();
-
+        Page<SongDTO> songList = songService.paging(pageable);
+        int blockLimit = 3;
+        int startPage = (((int)(Math.ceil((double)pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+        int endPage = Math.min((startPage + blockLimit - 1), songList.getTotalPages());
         if (songDTOList  != null ) {
             responseData.put("songList", songDTOList);
             responseData.put("likeList", likeDTOList);
-            System.out.println(songDTOList);
+            responseData.put("songPageList", songList);
+            responseData.put("startPage", startPage);
+            responseData.put("endPage", endPage);
+
             return ResponseEntity.status(HttpStatus.OK).body(responseData);
         }
         else{
@@ -120,6 +127,5 @@ public class SongController {
 
     }
 
-//    @PostMapping("/song/like/{id}")
 
 }

@@ -9,7 +9,7 @@ import playIcon from '../../assets/play_icon.png';
 import './LeaderBoard.css';
 import PlayerModal from '../../component/PlayerModal.js';
 
-const LeaderBoard = () => {
+const LeaderPop = () => {
     const [session, setSession] = useState({});
     const storedSession = JSON.parse(localStorage.getItem('session')) || {};
 
@@ -79,21 +79,22 @@ const LeaderBoard = () => {
             console.error('Error fetching lyrics:', error);
         }
     };
-    const fetchData = async (currentPage = page) => {
+    const fetchData = async (genre,currentPage = page) => {
 
         try {
 
-            const response = await axios.get(`/song/leader_board/${memberId}`, {
+            const response = await axios.get(`/song/leader_board/genre/${memberId}`, {
                 params: {
                     memberId: memberId,
-                    page: currentPage
+                    page: currentPage,
+                    genre: genre,
                 }
             });
 
             const { data } = response;
             console.log(data);
 
-            const updatedSongList = data.songList.map(song => {
+            const updatedSongList = data.songPageList.content.map(song => {
                 const matchingLike = data.likeList.find(like => like.songId === song.id);
 
                 return {
@@ -109,7 +110,8 @@ const LeaderBoard = () => {
             setLikeList(data.likeList);
             const { songPageList ,startPage, endPage } = data;
 
-            setSongList(songPageList.content);
+
+            console.log(songPageList.content);
             setSongPageList(songPageList);
             setStartPage(startPage);
             setEndPage(endPage);
@@ -124,34 +126,7 @@ const LeaderBoard = () => {
 
     };
 
-    const handleGenreFilter = async (genre) => {
-        try {
-            const response = await axios.get(`/song/leader_board/genre/${memberId}`, {
-                params: {
-                    memberId: memberId,
-                    genre: genre
-                }
-            });
 
-            const { data } = response;
-            console.log(data)
-            // Update songList state with filtered songs
-            const updatedSongList = data.songList.map(song => {
-                const matchingLike = data.likeList.find(like => like.songId === song.id);
-
-                return {
-                    ...song,
-                    isLiked: !!matchingLike,
-                    likeId: matchingLike ? matchingLike.id : null,
-                };
-            });
-
-            setSongList(updatedSongList);
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            setError(true);
-        }
-    };
     useEffect(() => {
 
     }, [songList]);
@@ -168,47 +143,12 @@ const LeaderBoard = () => {
 
     return (
         <>
-            {/* <!-- Navigation--> */}
-            <nav className="navbar navbar-expand-lg navbar-dark navbar-custom fixed-top">
-                <div className="container px-5">
-                    <a className="navbar-brand" href="/">HITTABLE</a>
-                    <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive"
-                            aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation"><span
-                        className="navbar-toggler-icon"></span></button>
-                    <div className="collapse navbar-collapse" id="navbarResponsive">
-                        <ul className="navbar-nav ms-auto">
-                            <li className="nav-item"><a className="nav-link" href="/member/hit_ai">Hit</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/song/board">Leader Board</a></li>
-                            <li className="nav-item"><a className="nav-link" href="/board/paging">Community</a></li>
-                            <li className="nav-item">
-                                {storedSession.loginName != null && (
-                                    <a className="nav-link" href="/member/mypage"><p>{storedSession.loginName}</p></a>
-                                )}
-                            </li>
-                            <li className="nav-item">
-                                {storedSession.loginName != null ? (
-                                    <a className="nav-link" href="/member/logout">로그아웃</a>
-                                ) : (
-                                    <a className="nav-link" href="/member/save">Sign Up</a>
-                                )}
-                            </li>
-                            <li className="nav-item">
-                                {storedSession.loginName == null && (
-                                    <a className="nav-link" href="/member/login">Log In</a>
-                                )}
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
 
             {storedSession.loginName != null && (
                 <button onClick={Posting}>노래 예측하기 </button>
             )}
             <button onClick={() => fetchData()}>전체보기</button>
-            <button onClick={() => handleGenreFilter('pop')}>Pop</button>
-            <button onClick={() => handleGenreFilter('dance')}>Dance</button>
-            <button onClick={() => handleGenreFilter('ballad')}>Ballad</button>
+
             <div className="community-table-wrapper">
                 <table>
                     <thead>
@@ -240,7 +180,7 @@ const LeaderBoard = () => {
                                         isLiked={song.isLiked}
                                     />
                                 </td>
-                                <td>{index + 1}</td>
+                                <td>{(page - 1) * songPageList.size + index + 1}</td>
                                 {/*<td>{song.id}</td>*/}
                                 <td>
                                     <Link to={`/hit_ai_detail?id=` + song.id} >
@@ -332,4 +272,4 @@ const LeaderBoard = () => {
 };
 
 
-export default LeaderBoard;
+export default LeaderPop;
