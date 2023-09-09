@@ -6,15 +6,14 @@
 세계 최대 음원 스트리밍 서비스 "Spotify"도 인공지능을 활용하여 뮤지컬이나 팟캐스트의 주제와 형식을 예측한 경험이 있습니다.  또한, 세계 최대 음원 공유 플랫폼 "Sound Cloud"에서는 히트곡 예측 기술을 활용 전망을 발표한 바 있습니다. 
 
 이러한 배경에서 음원 빅데이터를 활용하여 AI 기반 히트 곡 예측 서비스를 개발하려는 목적이 생겼습니다. 이 서비스는 음악 산업의 다양한 관계자들(레코드 회사, 아티스트, 음악 프로듀서 등)이 효과적인 마케팅 전략을 수립하는 데 도움을 주고, 음악 시장을 활성화시키며, 사용자들에게 음악과 음악 산업의 트렌드를 빠르게 이해할 수 있도록 도움을 줄 것입니다.
-
-- 2023.05.20 ~ 2023.07.06 동안 6인 1조로 진행하였습니다.         
+       
 
 # 목차
 1. [프로젝트 설명](#프로젝트-설명)
 2. [설치 및 실행](#설치-및-실행)
 3. [프로젝트 구조](#프로젝트-구조)
 4. [기능](#기능)
-
+5. [팀원](#팀원)
 
 
 
@@ -45,14 +44,77 @@
    - 1DCNN, RNN, LSTM, 양방향LSTM의 모델을 실험한 결과, 정확도가 가장 높은 1DCNN 모델을 최종 선정하였습니다.
 
 
-##설치 및 실행
+## 설치 및 실행
+- NodeJs 설치
+  - https://nodejs.org/ko/download
+- Anaconda 설치
+  - https://www.anaconda.com/download
+
+### 1. Frontend
+
+- 인텔리제이 터미널에서 3030 포트를 실행하기 위한 의존성 패키지를 설치합니다. 
+```
+cd src/main/frontend
+npm install
+npm install react-scripts
+```
+- npm을 실행합니다.
+```
+npm start
+```
 
 
+### 2. Backend
 
+- application.yml 에서 데이터베이스 환경 설정을 합니다. 
+```
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #    Database
+    url: 
 
+    #    mysql에 생성한 사용자 계정 정보
+    username: 
+    password: 
 
+```
+### 3. AI        
+- AI 파일이 있는 편집기(ex.VS CODE) 에서 해당 명령어를 실행합니다. 가상환경에서 실행되어야 합니다.(아나콘다 설치 필수)
 
+-AI 서비스에 필요한 파일을 로드하기 위해 파일의 위치를 지정해주어야합니다.
+```
+main.py
 
+# 토크나이저 로드
+    # 댄스 토크나이저
+    with open('0703tokenizer_dance.pickle', 'rb') as handle:
+        tokenizer_dance = pickle.load(handle)
+    # 발라드 토크나이저
+    with open('0703tokenizer_ballad.pickle', 'rb') as handle:
+        tokenizer_ballad = pickle.load(handle)
+    # 팝 토크나이저
+    with open('0703tokenizer_pop.pickle', 'rb') as handle:
+        tokenizer_pop = pickle.load(handle)
+
+# 불용어 텍스트 로드
+    with open('stopword.txt', 'r', encoding='utf-8') as f:
+          text = f.read()
+
+# 모델 가중치 파일
+    dance_model.load_weights('0703_dance.h5') # 2d댄스
+    ballad_model.load_weights('0703_ballad.h5') # 2d발라드
+    pop_model.load_weights('0703_pop.h5') # 2d팝
+
+```
+- main.py를 실행하기 위해 가상환경에서 필요한 라이브러리 설치합니다.
+
+<pre> conda install fastapi librosa numpy keras pydantic tensorflow konlpy </pre>
+
+- main.py 파일을 실행합니다. 
+```
+conda activate (가상환경 명)
+uvicorn main:app --reload
+```
 
 
 
@@ -63,10 +125,72 @@
   - Front : react
   - Back : java spring, fast api, AWS EC2
   - AI : Tensorflow
-![image](https://github.com/stelladream1/HITTER-project/assets/74993171/aecad056-4f27-4bce-b68c-5e9e9d36c5e4)
 
-- **구현된 기능**
+
+- **프로젝트 구조**
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/aecad056-4f27-4bce-b68c-5e9e9d36c5e4)
+- **데이터 베이스 구조**
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/c70d8781-de10-41f8-a3fb-5a5615e44dbd)
+- 비밀번호 암호화 
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/0bdec96c-9226-4fcb-a7b5-32e498cc848b)
+
+
+## 기능
   1. [회원 가입 및 로그인 서비스]
   2. [마이페이지]
   3. [음원 파일 분석 통한 히트 확률 제공 서비스]
   4. [사용자 커뮤니티 서비스]
+
+-메인 페이지
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/8bb66a7c-87e7-4b08-81f7-9f216d14f33b)
+
+- 로그인 및 회원가입
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/20084b97-c3e6-4947-892c-ea36145c5cc9)
+
+- 마이페이지
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/0cd1ec50-fca2-4157-9a0f-2029bd1fbae4)
+- 마이페이지( 회원 정보 수정하기)
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/3b15dfbe-26e6-40b7-8d26-5d9d7d4edb93)
+- 마이페이지(내가 올린 글 조회하기)
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/27fd3941-c087-4614-aa63-5207b38a2183)
+
+- 마이페이지(내가 올린 곡 조회하기)
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/a2212433-de7c-4797-985d-ef77642c0104)
+
+- 히트곡 예측 페이지
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/69530ee2-fcc6-49ba-98ce-5eb41b1080cd)
+
+- 리더보드 
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/bf3d9ec3-9ad0-433f-9d9c-8a5552a00940)
+
+- 커뮤니티
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/df6c4b5f-735a-4cd3-863d-5748b83eb541)
+
+
+## 팀원
+해당 프로젝트는 2023.05.20 ~ 2023.07.06 동안 6인 1조로 진행되었습니다.  
+
+김누리
+  - 역할: Figma 및 산출물 작성
+  - github: https://github.com/knurii
+
+김석원
+  - 역할: Figma 및 산출물 작성
+  - github: https://github.com/wontwotwo
+
+김예원
+
+  - 역할: UI/UX 디자인, AI 모델링
+  - github: feb_ye@naver.com
+
+김현
+  - 역할: Backend, Frontend
+  - github: https://github.com/stelladream1
+
+박승현
+  - 역할: Backend, Frontend
+  - github: https://github.com/ss3un9
+
+조영준
+  - 역할: AI 모델링
+  - github: j00jun924@gmail.com
