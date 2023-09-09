@@ -181,7 +181,7 @@ uvicorn main:app --reload
 김예원
 
   - 역할: UI/UX 디자인, AI 모델링
-  - github: feb_ye@naver.com
+  - github: https://github.com/gingerbon
 
 김현
   - 역할: Backend, Frontend
@@ -193,4 +193,4 @@ uvicorn main:app --reload
 
 조영준
   - 역할: AI 모델링
-  - github: j00jun924@gmail.com
+  - Email: j00jun924@gmail.com
