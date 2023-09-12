@@ -41,7 +41,103 @@
    - 음원 별 가사 데이터를 크롤링을 통해 수집하였습니다.
    - 단어 빈도 분석, 불용어 제거, 토큰화 등의 전처리를 수행하였습니다.
    - 단어에서 벡터로 바꾸는 임베딩 작업을 작업을 진행하였습니다.
-   - 1DCNN, RNN, LSTM, 양방향LSTM의 모델을 실험한 결과, 정확도가 가장 높은 1DCNN 모델을영상 - [시연영상 바로가기](https://drive.google.com/file/d/1nSPWpn9di7T_FqSeIo12CDfgFaA7wWBA/view?usp=drive_link)
+   - 1DCNN, RNN, LSTM, 양방향LSTM의 모델을 실험한 결과, 정확도가 가장 높은 1DCNN 모델을 최종 선정하였습니다.                                        
+
+
+
+## 설치 및 실행
+- NodeJs 설치
+  - https://nodejs.org/ko/download
+- Anaconda 설치
+  - https://www.anaconda.com/download
+
+### 1. Frontend
+
+- 인텔리제이 터미널에서 3030 포트를 실행하기 위한 의존성 패키지를 설치합니다. 
+```
+cd src/main/frontend
+npm install
+npm install react-scripts
+```
+- npm을 실행합니다.
+```
+npm start
+```
+
+
+### 2. Backend
+
+- application.yml 에서 데이터베이스 환경 설정을 합니다. 
+```
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    #    Database
+    url: 
+    #    mysql에 생성한 사용자 계정 정보
+    username: 
+    password: 
+```
+### 3. AI        
+- AI 파일이 있는 편집기(ex.VS CODE) 에서 해당 명령어를 실행합니다. 가상환경에서 실행되어야 합니다.(아나콘다 설치 필수)
+
+-AI 서비스에 필요한 파일을 로드하기 위해 파일의 위치를 지정해주어야합니다.
+```
+main.py
+# 토크나이저 로드
+    # 댄스 토크나이저
+    with open('0703tokenizer_dance.pickle', 'rb') as handle:
+        tokenizer_dance = pickle.load(handle)
+    # 발라드 토크나이저
+    with open('0703tokenizer_ballad.pickle', 'rb') as handle:
+        tokenizer_ballad = pickle.load(handle)
+    # 팝 토크나이저
+    with open('0703tokenizer_pop.pickle', 'rb') as handle:
+        tokenizer_pop = pickle.load(handle)
+# 불용어 텍스트 로드
+    with open('stopword.txt', 'r', encoding='utf-8') as f:
+          text = f.read()
+# 모델 가중치 파일
+    dance_model.load_weights('0703_dance.h5') # 2d댄스
+    ballad_model.load_weights('0703_ballad.h5') # 2d발라드
+    pop_model.load_weights('0703_pop.h5') # 2d팝
+```
+- main.py를 실행하기 위해 가상환경에서 필요한 라이브러리 설치합니다.
+
+<pre> conda install fastapi librosa numpy keras pydantic tensorflow konlpy </pre>
+
+- main.py 파일을 실행합니다. 
+```
+conda activate (가상환경 명)
+uvicorn main:app --reload
+```
+
+
+
+
+## 프로젝트 구조
+
+- **사용 스택**
+  - Front : react
+  - Back : java spring, fast api, AWS EC2
+  - AI : Tensorflow
+
+
+- **프로젝트 구조**
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/aecad056-4f27-4bce-b68c-5e9e9d36c5e4)
+- **데이터 베이스 구조**
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/c70d8781-de10-41f8-a3fb-5a5615e44dbd)
+- 비밀번호 암호화 
+![image](https://github.com/stelladream1/HITTER-project/assets/74993171/0bdec96c-9226-4fcb-a7b5-32e498cc848b)
+
+
+## 기능
+  1. [회원 가입 및 로그인 서비스]
+  2. [마이페이지]
+  3. [음원 파일 분석 통한 히트 확률 제공 서비스]
+  4. [사용자 커뮤니티 서비스]         
+
+
+**프로젝트 시연영상 - [시연영상 바로가기](https://drive.google.com/file/d/1nSPWpn9di7T_FqSeIo12CDfgFaA7wWBA/view?usp=drive_link)**
 
 -메인 페이지
 ![image](https://github.com/stelladream1/HITTER-project/assets/74993171/8bb66a7c-87e7-4b08-81f7-9f216d14f33b)
